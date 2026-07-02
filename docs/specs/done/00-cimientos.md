@@ -55,4 +55,25 @@ la que se monta todo lo demás.
 - `lib/core/router/app_router.dart`
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-02 — Implementado (PR #1, merge 52b4b3c)
+- `flutter create` (iOS + Android, org `com.hectorcanaimero`). Deps: riverpod,
+  go_router, google_fonts, intl, drift + drift_flutter + sqlite3_flutter_libs,
+  cached_network_image, flame, flutter_localizations.
+- Theme dark + light desde `lib/core/theme/tokens.dart` (valores PRD §4, 1:1) y
+  `app_theme.dart`. MVP corre en oscuro; light cableado con paleta derivada.
+- i18n: `l10n.yaml` + `lib/l10n/app_es.arb` → `AppLocalizations` (locale es-VE).
+- `go_router` con las 9 rutas placeholder; estructura `core/ features/ shared/`.
+- Home confirma theme + i18n + navegación. `flutter analyze` limpio, `flutter test` verde.
+- Escenarios de validación: `docs/specs/scenarios/00-cimientos.feature` (9, Gherkin).
+
+**Decisiones / desviaciones**
+- Conflicto `intl`: `flutter_localizations` exige `intl 0.20.2` exacto → se pineó.
+- **Desviación aceptada (finding Medio del revisor):** los títulos de las pantallas
+  *placeholder* en el router están hardcodeados ('Diario', 'Colección'…), no vía i18n.
+  Se acepta a propósito: son descartables y cada spec (02–08) reemplaza su pantalla con
+  la versión real y localizada. Agregar claves para texto que se borra sería boilerplate.
+  El criterio de i18n del spec se cumple en Home. **Revisar que ningún placeholder
+  sobreviva a su spec.**
+- `ColorScheme.error` mapeado a `warning` (no hay token de error en el PRD).
+- `google_fonts` fetchea Inter en runtime (spec lo permite; upgrade path = bundlear .ttf).
