@@ -45,7 +45,6 @@ dependencies:
   sqlite3_flutter_libs: ^0.6.0+eol
   cached_network_image: ^3.4.1
   flame: ^1.37.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
