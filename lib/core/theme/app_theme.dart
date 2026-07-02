@@ -42,6 +42,25 @@ class AppTheme {
         ),
       ),
       dividerColor: p.border,
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: p.bgSecondary,
+        indicatorColor: p.accentGlow,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? p.accent
+                : p.textMuted, // = tab-inactive del PRD §4
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 12,
+            color: states.contains(WidgetState.selected)
+                ? p.accent
+                : p.textMuted,
+          ),
+        ),
+      ),
     );
   }
 }
