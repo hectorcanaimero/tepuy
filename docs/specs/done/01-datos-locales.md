@@ -44,4 +44,26 @@ esquema del TECH §3 y un seed de lugares de Venezuela para jugar desde la insta
 - `assets/places/*`
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-02 — Implementado (PR #2)
+- Drift: tablas `Places`, `Puzzles`, `UserPuzzles`, `Users` (`lib/core/db/tables.dart`).
+  `FactsConverter` guarda los datos clave como JSON. `boardState` y `syncedAt` presentes.
+- Enums en `lib/core/domain/enums.dart`: `Difficulty` (50/110/200/300/440), `Category`, `PuzzleStatus`.
+- `AppDatabase` con seed en `onCreate` (una vez). Repos + providers Riverpod
+  (`PlaceRepository`, `PuzzleRepository`, `UserPuzzleRepository`).
+- Seed de 8 lugares reales de Venezuela, un puzzle por dificultad (40 puzzles).
+- `flutter analyze` limpio; `flutter test` 4/4 verde. 8 escenarios en
+  `docs/specs/scenarios/01-datos-locales.feature`.
+
+**Decisiones / desviaciones**
+- El `.g.dart` de Drift **se commitea** (no hay codegen en CI → clonar y correr funciona).
+  Se quitó `*.g.dart` del `.gitignore`.
+- Fix: el `.g.dart` no veía los enums → se agregó `import '../domain/enums.dart'` en
+  `app_database.dart` (el part file comparte el scope de la librería).
+- **Nota diferida (finding revisor):** `Users` no tiene `syncedAt` (sí `UserPuzzles`).
+  Se agrega con su migración cuando se construya el SyncEngine (Fase 3) — YAGNI ahora.
+- Imágenes de lugares: solo se guarda la ruta; fotos = tarea de contenido (spec 03).
+  Ver `assets/places/README.md`.
+- Ruido de tooling (`.agents/`, `.claude/skills/`, `skills-lock.json`) → ignorado.
+  `.mcp.json` (MCP de Supabase, project_ref real) quedó SIN commitear — decisión del user,
+  es config de Fase 3, fuera del alcance offline.
