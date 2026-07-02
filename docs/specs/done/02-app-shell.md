@@ -39,4 +39,24 @@ montan las pantallas. Refleja la navegación del layout.
 - `lib/core/router/app_router.dart` (StatefulShellRoute)
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-02 — Implementado (PR #3)
+- `AppScaffold` (`lib/shared/widgets/app_scaffold.dart`) con `NavigationBar`:
+  Inicio · Diario · Colección · Perfil, labels vía i18n.
+- Router (`lib/core/router/app_router.dart`) migrado a `StatefulShellRoute.indexedStack`:
+  4 branches tabbeados con estado preservado; rutas de detalle (settings, journey,
+  difficulty, play, reveal) fuera del shell → full-screen sin tab bar.
+- Tab bar estilado por tokens en el theme (`navigationBarTheme`): activo `accent`,
+  inactivo `textMuted` (= tab-inactive del PRD §4), indicador `accentGlow`.
+- Status bar claro sobre fondo oscuro (`SystemChrome` en `main.dart`).
+- `flutter analyze` limpio; `flutter test` 5/5. 13 escenarios en
+  `docs/specs/scenarios/02-app-shell.feature`.
+
+**Decisiones / desviaciones**
+- **Íconos (finding):** el spec pedía lucide, pero `lucide_icons` 0.257 **rompe con
+  Flutter 3.44** (extiende `IconData`, ahora `final`) — `flutter analyze` no lo detecta
+  pero el compilador de tests sí. Se usaron **Material Icons** equivalentes (bundleados).
+  Pendiente: evaluar `lucide_icons_flutter` (fork mantenido) cuando hagan falta glifos
+  específicos del diseño (eye, lightbulb, mountain… en specs 05-07).
+- Placeholders del router siguen con títulos hardcodeados (descartables, cada spec los
+  reemplaza) — misma desviación aceptada del spec 00.
