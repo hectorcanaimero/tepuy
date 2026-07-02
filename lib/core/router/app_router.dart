@@ -58,7 +58,7 @@ final appRouter = GoRouter(
       builder: (_, _) => const PlaceholderScreen(title: 'Tu Camino'),
     ),
     GoRoute(
-      path: '/difficulty/:puzzleId',
+      path: '/difficulty/:placeId',
       builder: (_, _) => const PlaceholderScreen(title: 'Dificultad'),
     ),
     GoRoute(

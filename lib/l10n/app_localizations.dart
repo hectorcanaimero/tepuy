@@ -136,17 +136,107 @@ abstract class AppLocalizations {
   /// **'Pantalla en construcción'**
   String get screenPlaceholder;
 
-  /// No description provided for @goToDaily.
+  /// No description provided for @retoDiario.
   ///
   /// In es, this message translates to:
-  /// **'Ir a Diario'**
-  String get goToDaily;
+  /// **'RETO DIARIO'**
+  String get retoDiario;
 
-  /// No description provided for @goToCollection.
+  /// No description provided for @jugarAhora.
   ///
   /// In es, this message translates to:
-  /// **'Ir a Colección'**
-  String get goToCollection;
+  /// **'Jugar Ahora'**
+  String get jugarAhora;
+
+  /// No description provided for @categorias.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías'**
+  String get categorias;
+
+  /// No description provided for @verTodo.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver Todo'**
+  String get verTodo;
+
+  /// No description provided for @populares.
+  ///
+  /// In es, this message translates to:
+  /// **'Populares'**
+  String get populares;
+
+  /// No description provided for @filtroTodos.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get filtroTodos;
+
+  /// No description provided for @piezas.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} piezas'**
+  String piezas(int count);
+
+  /// No description provided for @catNaturaleza.
+  ///
+  /// In es, this message translates to:
+  /// **'Naturaleza'**
+  String get catNaturaleza;
+
+  /// No description provided for @catPlayas.
+  ///
+  /// In es, this message translates to:
+  /// **'Playas'**
+  String get catPlayas;
+
+  /// No description provided for @catMontanas.
+  ///
+  /// In es, this message translates to:
+  /// **'Montañas'**
+  String get catMontanas;
+
+  /// No description provided for @catCiudades.
+  ///
+  /// In es, this message translates to:
+  /// **'Ciudades'**
+  String get catCiudades;
+
+  /// No description provided for @catIslas.
+  ///
+  /// In es, this message translates to:
+  /// **'Islas'**
+  String get catIslas;
+
+  /// No description provided for @difNovato.
+  ///
+  /// In es, this message translates to:
+  /// **'Novato'**
+  String get difNovato;
+
+  /// No description provided for @difFacil.
+  ///
+  /// In es, this message translates to:
+  /// **'Fácil'**
+  String get difFacil;
+
+  /// No description provided for @difMedio.
+  ///
+  /// In es, this message translates to:
+  /// **'Media'**
+  String get difMedio;
+
+  /// No description provided for @difDificil.
+  ///
+  /// In es, this message translates to:
+  /// **'Difícil'**
+  String get difDificil;
+
+  /// No description provided for @difExperto.
+  ///
+  /// In es, this message translates to:
+  /// **'Experto'**
+  String get difExperto;
 }
 
 class _AppLocalizationsDelegate
