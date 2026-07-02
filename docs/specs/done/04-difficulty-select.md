@@ -35,4 +35,21 @@ Elegir la dificultad de un puzzle antes de jugar. Define cuántas piezas tendrá
 - `lib/features/journey/ui/difficulty_select_screen.dart`
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-02 — Implementado (PR #5)
+- `DifficultySelectScreen` (`lib/features/journey/ui/`): header del lugar, las 5
+  dificultades con nº de piezas y mejor tiempo por dificultad, selección local, CTA
+  Jugar → `/play/{placeId}-{difficulty}`. Providers en `difficulty_providers.dart`.
+- Todas las dificultades desbloqueadas (candados = Fase 2). Helper `formatDuration`.
+- Ruta `/difficulty/:placeId` conectada. `flutter test` 8/8. 10 escenarios.
+
+**Revisión (loop adversarial) — el review encontró un bug REAL**
+- [ALTO] El test decía "7 passed" pero fallaba: el `ListView` virtualiza los tiles →
+  `find.text('Experto')` no lo hallaba sin scrollear. Fix: `scrollUntilVisible`.
+- **Causa raíz descubierta al arreglarlo:** `appRouter` es un singleton global → el
+  test 1 lo dejaba en `/play` y el test 2 arrancaba ahí (no en Home). Fix: `pumpApp`
+  hace `appRouter.go('/')` para aislar cada test. *(Mejora futura: routerProvider.)*
+- [BAJO] Agregado test del caso positivo de mejor tiempo. Re-review → ✅ 8/8.
+
+**Nota**: el review corrió los tests de verdad y detectó que "7 passed" era falso.
+Lección reforzada: confiar en la ejecución, no en el exit code mal atribuido.
