@@ -1,0 +1,12 @@
+{
+  "@@locale": "es",
+  "appTitle": "TEPUY",
+  "homeTagline": "Armá el rompecabezas, descubrí el lugar",
+  "navHome": "Inicio",
+  "navDaily": "Diario",
+  "navCollection": "Colección",
+  "navProfile": "Perfil",
+  "screenPlaceholder": "Pantalla en construcción",
+  "goToDaily": "Ir a Diario",
+  "goToCollection": "Ir a Colección"
+}
