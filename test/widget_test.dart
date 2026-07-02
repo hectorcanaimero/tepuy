@@ -1,18 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:tepuy/main.dart';
+
+import 'support.dart';
 
 void main() {
-  testWidgets('Home muestra el título e i18n resuelve (es-VE)', (tester) async {
-    // Evita fetch de fuentes por red en el test (usa fallback del sistema).
-    GoogleFonts.config.allowRuntimeFetching = false;
+  testWidgets('la app arranca en Home con datos del seed', (tester) async {
+    await pumpApp(tester);
 
-    await tester.pumpWidget(const TepuyApp());
-    await tester.pumpAndSettle();
-
-    // Título vía AppLocalizations, no hardcodeado.
-    expect(find.text('TEPUY'), findsOneWidget);
-    // Tagline en español.
-    expect(find.textContaining('Armá'), findsOneWidget);
+    // Título e i18n resuelto.
+    expect(find.text('TEPUY'), findsWidgets);
+    // El banner muestra el lugar destacado (del seed).
+    expect(find.text('Salto Ángel'), findsWidgets);
   });
 }

@@ -7,6 +7,27 @@
   "navCollection": "Colección",
   "navProfile": "Perfil",
   "screenPlaceholder": "Pantalla en construcción",
-  "goToDaily": "Ir a Diario",
-  "goToCollection": "Ir a Colección"
+  "errorCargarLugares": "No se pudieron cargar los lugares",
+  "retoDiario": "RETO DIARIO",
+  "jugarAhora": "Jugar Ahora",
+  "categorias": "Categorías",
+  "verTodo": "Ver Todo",
+  "populares": "Populares",
+  "filtroTodos": "Todos",
+  "piezas": "{count} piezas",
+  "@piezas": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "catNaturaleza": "Naturaleza",
+  "catPlayas": "Playas",
+  "catMontanas": "Montañas",
+  "catCiudades": "Ciudades",
+  "catIslas": "Islas",
+  "difNovato": "Novato",
+  "difFacil": "Fácil",
+  "difMedio": "Media",
+  "difDificil": "Difícil",
+  "difExperto": "Experto"
 }

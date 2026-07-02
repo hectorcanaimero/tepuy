@@ -78,4 +78,8 @@ class AppPalette {
     border: Color(0xFFE5E7EB),
     overlay: Color(0x660A0A0F),
   );
+
+  /// Paleta activa según el brillo del tema.
+  static AppPalette of(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? dark : light;
 }

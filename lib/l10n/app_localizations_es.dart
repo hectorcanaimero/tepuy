@@ -30,8 +30,58 @@ class AppLocalizationsEs extends AppLocalizations {
   String get screenPlaceholder => 'Pantalla en construcción';
 
   @override
-  String get goToDaily => 'Ir a Diario';
+  String get errorCargarLugares => 'No se pudieron cargar los lugares';
 
   @override
-  String get goToCollection => 'Ir a Colección';
+  String get retoDiario => 'RETO DIARIO';
+
+  @override
+  String get jugarAhora => 'Jugar Ahora';
+
+  @override
+  String get categorias => 'Categorías';
+
+  @override
+  String get verTodo => 'Ver Todo';
+
+  @override
+  String get populares => 'Populares';
+
+  @override
+  String get filtroTodos => 'Todos';
+
+  @override
+  String piezas(int count) {
+    return '$count piezas';
+  }
+
+  @override
+  String get catNaturaleza => 'Naturaleza';
+
+  @override
+  String get catPlayas => 'Playas';
+
+  @override
+  String get catMontanas => 'Montañas';
+
+  @override
+  String get catCiudades => 'Ciudades';
+
+  @override
+  String get catIslas => 'Islas';
+
+  @override
+  String get difNovato => 'Novato';
+
+  @override
+  String get difFacil => 'Fácil';
+
+  @override
+  String get difMedio => 'Media';
+
+  @override
+  String get difDificil => 'Difícil';
+
+  @override
+  String get difExperto => 'Experto';
 }
