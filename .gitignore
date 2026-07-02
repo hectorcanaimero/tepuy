@@ -1,0 +1,26 @@
+# Claude Code local settings (session-specific noise)
+.claude/
+
+# macOS
+.DS_Store
+
+# Flutter / Dart (para cuando arranque el proyecto)
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.vscode/
+# pubspec.lock SE commitea en apps (build reproducible) — no ignorar.
+ios/Pods/
+ios/.symlinks/
+android/.gradle/
+android/local.properties
+*.g.dart
+*.freezed.dart
+
+# Secrets / entorno
+.env
+.env.*
