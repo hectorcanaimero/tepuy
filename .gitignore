@@ -1,5 +1,6 @@
-# Claude Code local settings (session-specific noise)
-.claude/
+# Claude Code — se comparten agents/ y commands/; se ignoran los settings locales
+.claude/settings.json
+.claude/settings.local.json
 
 # macOS
 .DS_Store

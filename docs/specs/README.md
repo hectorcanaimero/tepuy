@@ -9,17 +9,32 @@ doing/     en progreso (máximo 1-2 a la vez)
 done/      hecho — con ## Histórico lleno
 ```
 
-## Flujo
+## Flujo (spec → feature → PR)
 
-1. Un spec nace en `backlog/`.
-2. Al empezar a trabajarlo → `mv` a `doing/`.
-3. Al terminar → `mv` a `done/` **y** llenar la sección `## Histórico` con:
-   qué se hizo, decisiones tomadas, desviaciones del plan, fecha.
+Cada spec es **un feature** y entra por **un PR**. Nunca se codea directo a `main`.
+
+1. Spec nace en `backlog/`.
+2. Al empezar → `mv` a `doing/` **y** crear rama `feat/NN-slug` (ej. `feat/00-cimientos`).
+3. Implementar en la rama. Commits conventional (`feat(cimientos): ...`).
+4. Abrir **PR** contra `main` (título conventional, referenciando el spec).
+5. **El agente `spec-pr-reviewer` revisa el PR**: valida el código contra el spec y
+   escribe los escenarios de validación en Gherkin → `docs/specs/scenarios/NN-slug.feature`.
+   Se invoca automáticamente al abrir cada PR.
+6. Con la revisión OK y los escenarios verdes → **merge**.
+7. Post-merge → `mv` el spec a `done/` **y** llenar `## Histórico` (qué se hizo,
+   decisiones, desviaciones, fecha).
+
+Un spec en `doing/` = una rama/PR viva. Máximo 1-2 a la vez.
 
 Ver estado de todo:
 ```
 eza --tree docs/specs
 ```
+
+### Escenarios de validación
+- Los escribe el agente, en **Gherkin (español)**, uno por Criterio de aceptación.
+- Viven en `docs/specs/scenarios/NN-slug.feature`.
+- Cuando exista el proyecto Flutter, se mapean a `integration_test/` casi 1:1.
 
 ## Convención
 
