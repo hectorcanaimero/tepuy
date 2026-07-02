@@ -142,6 +142,30 @@ abstract class AppLocalizations {
   /// **'No se pudieron cargar los lugares'**
   String get errorCargarLugares;
 
+  /// No description provided for @seleccionaDificultad.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccioná la dificultad'**
+  String get seleccionaDificultad;
+
+  /// No description provided for @jugar.
+  ///
+  /// In es, this message translates to:
+  /// **'Jugar'**
+  String get jugar;
+
+  /// No description provided for @mejorTiempo.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor {time}'**
+  String mejorTiempo(String time);
+
+  /// No description provided for @sinRecord.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin récord'**
+  String get sinRecord;
+
   /// No description provided for @retoDiario.
   ///
   /// In es, this message translates to:

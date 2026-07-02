@@ -8,6 +8,15 @@
   "navProfile": "Perfil",
   "screenPlaceholder": "Pantalla en construcción",
   "errorCargarLugares": "No se pudieron cargar los lugares",
+  "seleccionaDificultad": "Seleccioná la dificultad",
+  "jugar": "Jugar",
+  "mejorTiempo": "Mejor {time}",
+  "@mejorTiempo": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "sinRecord": "Sin récord",
   "retoDiario": "RETO DIARIO",
   "jugarAhora": "Jugar Ahora",
   "categorias": "Categorías",
