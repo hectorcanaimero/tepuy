@@ -40,4 +40,27 @@ puzzles populares. Punto de partida del loop central.
 - `lib/features/home/home_providers.dart`
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-02 — Implementado (PR #4)
+- Home (`lib/features/home/ui/home_screen.dart`): banner de reto diario (lugar
+  destacado + CTA a Difficulty Select), chips de categoría con filtro (Riverpod
+  `Notifier`), grilla de populares con `PuzzleCard`.
+- Widgets reutilizables: `PuzzleCard` y `PlaceImage` (`lib/shared/widgets/`).
+  `PlaceImage` cae a gradiente por categoría si no hay foto (asset). Badge de
+  dificultad con color por token (fácil→success, media→warning, difícil→accent).
+- i18n ampliado: labels de categoría/dificultad vía extensiones `.localized(l10n)`
+  (`lib/shared/l10n_helpers.dart`). `AppPalette.of(context)` agregado a tokens.
+- Ruta `/difficulty/:puzzleId` → `/difficulty/:placeId`.
+- Tests migrados a helper `test/support.dart` (DB en memoria). `flutter analyze`
+  limpio; `flutter test` 6/6. 9 escenarios en `docs/specs/scenarios/03-home.feature`.
+
+**Revisión (loop adversarial)**
+- El revisor pidió cambios (2 hallazgos) → se aplicaron y reconfirmó ✅:
+  1. Banner usaba `Colors.black` → cambiado a `AppPalette.overlay` (token PRD §4).
+  2. Estado de error no localizado → `l10n.errorCargarLugares`.
+
+**Decisiones / desviaciones**
+- Imágenes de lugares: gradiente por categoría hasta tener fotos (tarea de contenido).
+  `PlaceImage` usa `Image.asset` con `errorBuilder` → funcionará con los assets sin cambios.
+- Dificultad en tarjetas de Populares: preview variado (facil/medio/dificil); la real
+  se elige en Difficulty Select (spec 04). "Ver Todo" → Colección por ahora.
