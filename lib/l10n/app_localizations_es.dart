@@ -33,6 +33,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get errorCargarLugares => 'No se pudieron cargar los lugares';
 
   @override
+  String get seleccionaDificultad => 'Seleccioná la dificultad';
+
+  @override
+  String get jugar => 'Jugar';
+
+  @override
+  String mejorTiempo(String time) {
+    return 'Mejor $time';
+  }
+
+  @override
+  String get sinRecord => 'Sin récord';
+
+  @override
   String get retoDiario => 'RETO DIARIO';
 
   @override

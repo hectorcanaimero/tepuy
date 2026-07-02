@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/home/ui/home_screen.dart';
+import '../../features/journey/ui/difficulty_select_screen.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
@@ -59,7 +60,8 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/difficulty/:placeId',
-      builder: (_, _) => const PlaceholderScreen(title: 'Dificultad'),
+      builder: (_, state) =>
+          DifficultySelectScreen(placeId: state.pathParameters['placeId']!),
     ),
     GoRoute(
       path: '/play/:puzzleId',
