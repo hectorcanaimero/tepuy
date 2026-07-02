@@ -31,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
       body: SafeArea(
         child: placesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('$e')),
+          error: (_, _) => Center(child: Text(l10n.errorCargarLugares)),
           data: (places) => _HomeContent(places: places, l10n: l10n),
         ),
       ),
@@ -111,7 +111,7 @@ class _DailyBanner extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
+                  colors: [Colors.transparent, AppPalette.of(context).overlay],
                 ),
               ),
             ),

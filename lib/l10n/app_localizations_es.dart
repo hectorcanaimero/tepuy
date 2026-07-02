@@ -30,6 +30,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get screenPlaceholder => 'Pantalla en construcción';
 
   @override
+  String get errorCargarLugares => 'No se pudieron cargar los lugares';
+
+  @override
   String get retoDiario => 'RETO DIARIO';
 
   @override

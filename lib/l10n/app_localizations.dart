@@ -136,6 +136,12 @@ abstract class AppLocalizations {
   /// **'Pantalla en construcción'**
   String get screenPlaceholder;
 
+  /// No description provided for @errorCargarLugares.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar los lugares'**
+  String get errorCargarLugares;
+
   /// No description provided for @retoDiario.
   ///
   /// In es, this message translates to:

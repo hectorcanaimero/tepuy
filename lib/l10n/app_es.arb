@@ -7,6 +7,7 @@
   "navCollection": "Colección",
   "navProfile": "Perfil",
   "screenPlaceholder": "Pantalla en construcción",
+  "errorCargarLugares": "No se pudieron cargar los lugares",
   "retoDiario": "RETO DIARIO",
   "jugarAhora": "Jugar Ahora",
   "categorias": "Categorías",
