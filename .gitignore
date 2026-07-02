@@ -19,9 +19,14 @@ ios/Pods/
 ios/.symlinks/
 android/.gradle/
 android/local.properties
-*.g.dart
-*.freezed.dart
+# Código generado (Drift .g.dart, etc.) SE commitea: no hay paso de codegen en CI,
+# así clonar y correr funciona sin build_runner. Regenerar: dart run build_runner build
 
 # Secrets / entorno
 .env
 .env.*
+
+# Tooling local de skills/agents (no es código del proyecto)
+.agents/
+.claude/skills/
+skills-lock.json
