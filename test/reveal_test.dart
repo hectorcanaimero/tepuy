@@ -11,7 +11,7 @@ void main() {
   testWidgets('Reveal muestra info del lugar, resumen y guarda en colección', (
     tester,
   ) async {
-    await pumpApp(
+    final db = await pumpApp(
       tester,
       setup: (db) async {
         await db
@@ -52,6 +52,13 @@ void main() {
     await tester.pump();
     expect(find.text('Guardado en tu colección'), findsOneWidget);
     expect(find.byIcon(Icons.bookmark), findsOneWidget);
+
+    // Persistió en la DB (no solo feedback visual).
+    final up = await (db.select(db.userPuzzles)
+          ..where((t) => t.puzzleId.equals('salto-angel-facil')))
+        .getSingle();
+    expect(up.isFavorite, isTrue);
+
     await tester.pump(const Duration(seconds: 5)); // flush timer del SnackBar
   });
 }
