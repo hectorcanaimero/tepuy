@@ -27,10 +27,10 @@ void main() {
     expect(find.text('440 piezas'), findsOneWidget);
     expect(find.text('Sin récord'), findsWidgets);
 
-    // El CTA Jugar abre Puzzle Play (placeholder por ahora).
+    // El CTA Jugar abre Puzzle Play (sale de Difficulty Select).
     await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    expect(find.text('Seleccioná la dificultad'), findsNothing);
   });
 
   testWidgets('muestra el mejor tiempo cuando existe récord', (tester) async {
