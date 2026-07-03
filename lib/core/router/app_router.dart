@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/home/ui/home_screen.dart';
 import '../../features/journey/ui/difficulty_select_screen.dart';
 import '../../features/puzzle/ui/puzzle_play_screen.dart';
+import '../../features/reveal/ui/place_reveal_screen.dart';
 import '../../shared/widgets/app_scaffold.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
@@ -71,7 +72,8 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/reveal/:puzzleId',
-      builder: (_, _) => const PlaceholderScreen(title: 'Lugar'),
+      builder: (_, state) =>
+          PlaceRevealScreen(puzzleId: state.pathParameters['puzzleId']!),
     ),
   ],
 );

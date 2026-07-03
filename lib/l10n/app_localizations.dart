@@ -208,6 +208,78 @@ abstract class AppLocalizations {
   /// **'Salir'**
   String get menuSalir;
 
+  /// No description provided for @rompecabezasCompletado.
+  ///
+  /// In es, this message translates to:
+  /// **'ROMPECABEZAS COMPLETADO'**
+  String get rompecabezasCompletado;
+
+  /// No description provided for @tiempoLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo'**
+  String get tiempoLabel;
+
+  /// No description provided for @piezasSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Piezas'**
+  String get piezasSummary;
+
+  /// No description provided for @dificultadLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Dificultad'**
+  String get dificultadLabel;
+
+  /// No description provided for @sobreEsteLugar.
+  ///
+  /// In es, this message translates to:
+  /// **'Sobre este lugar'**
+  String get sobreEsteLugar;
+
+  /// No description provided for @datosClave.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos clave'**
+  String get datosClave;
+
+  /// No description provided for @sabiasQue.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Sabías que?'**
+  String get sabiasQue;
+
+  /// No description provided for @siguienteRompecabezas.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente Rompecabezas'**
+  String get siguienteRompecabezas;
+
+  /// No description provided for @guardarEnColeccion.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar en Colección'**
+  String get guardarEnColeccion;
+
+  /// No description provided for @guardadoEnColeccion.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardado en tu colección'**
+  String get guardadoEnColeccion;
+
+  /// No description provided for @compartir.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir'**
+  String get compartir;
+
+  /// No description provided for @compartirProximamente.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir — próximamente'**
+  String get compartirProximamente;
+
   /// No description provided for @retoDiario.
   ///
   /// In es, this message translates to:

@@ -1,3 +1,5 @@
+import 'package:drift/drift.dart' show Value;
+
 import '../../../core/db/app_database.dart';
 
 /// Progreso del usuario por puzzle. Escribe con `synced_at = null` (pendiente
@@ -13,6 +15,11 @@ class UserPuzzleRepository {
 
   Future<void> save(UserPuzzlesCompanion entry) =>
       _db.into(_db.userPuzzles).insertOnConflictUpdate(entry);
+
+  Future<void> setFavorite(String puzzleId, bool favorite) =>
+      (_db.update(_db.userPuzzles)
+            ..where((t) => t.puzzleId.equals(puzzleId)))
+          .write(UserPuzzlesCompanion(isFavorite: Value(favorite)));
 
   Future<List<UserPuzzle>> favorites() =>
       (_db.select(_db.userPuzzles)..where((t) => t.isFavorite.equals(true)))
