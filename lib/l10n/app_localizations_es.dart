@@ -72,6 +72,42 @@ class AppLocalizationsEs extends AppLocalizations {
   String get menuSalir => 'Salir';
 
   @override
+  String get rompecabezasCompletado => 'ROMPECABEZAS COMPLETADO';
+
+  @override
+  String get tiempoLabel => 'Tiempo';
+
+  @override
+  String get piezasSummary => 'Piezas';
+
+  @override
+  String get dificultadLabel => 'Dificultad';
+
+  @override
+  String get sobreEsteLugar => 'Sobre este lugar';
+
+  @override
+  String get datosClave => 'Datos clave';
+
+  @override
+  String get sabiasQue => '¿Sabías que?';
+
+  @override
+  String get siguienteRompecabezas => 'Siguiente Rompecabezas';
+
+  @override
+  String get guardarEnColeccion => 'Guardar en Colección';
+
+  @override
+  String get guardadoEnColeccion => 'Guardado en tu colección';
+
+  @override
+  String get compartir => 'Compartir';
+
+  @override
+  String get compartirProximamente => 'Compartir — próximamente';
+
+  @override
   String get retoDiario => 'RETO DIARIO';
 
   @override
