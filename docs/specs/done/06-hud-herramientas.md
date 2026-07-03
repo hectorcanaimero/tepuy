@@ -49,4 +49,27 @@ jugador usa para resolverla. Es lo que el layout muestra en Puzzle Play.
 - `lib/features/puzzle/ui/puzzle_hud.dart`, `tool_bar.dart`, `piece_tray.dart`, `puzzle_timer.dart`
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-03 — Implementado (PR #7)
+- HUD sobre `PuzzlePlayScreen`: barra superior (nombre, cronómetro en vivo que pausa
+  con el ciclo de vida, menú ⋮ Reiniciar/Salir, volver) y barra inferior (contador
+  colocadas/total, restantes, herramientas).
+- Herramientas: pista (1 gratis/partida, resalta el home), vista previa (overlay de
+  la solución), zoom in/out, **pan** (arrastre en espacio vacío), deshacer (stack).
+- Todo localizado; colores sobre overlay por token (`AppPalette.textOnOverlay`).
+- `flutter test` 22/22 (hud_test a 400x900). 14 escenarios.
+
+**Revisión (loop adversarial, 2 rondas)**
+- [media] faltaba pan → agregado (GestureDetector de fondo + Transform.translate).
+- [media] faltaba menú ⋮ → agregado (Reiniciar/Salir).
+- [menor] tooltips hardcodeados → ARB. [menor] Colors.white → token.
+- **Bug real hallado al testear**: la barra superior hacía overflow (~27px) en tamaño
+  teléfono → se movió el contador al bottom bar; sin overflow. Re-review → ✅.
+
+**Decisiones / desviaciones (documentadas)**
+- **Bandeja de piezas**: el motor usa scatter en el tablero (spec 05), no bandeja
+  separada; el HUD muestra el contador de "restantes". Migrar a tray-drag = rediseño.
+- **5º ítem 'Jugar' del tab bar NO se agrega**: la pantalla de juego es full-screen
+  (arquitectura del spec 02); un nav tab bar la contradice.
+- **Pendiente (sugerencias no bloqueantes del review)**: clamp/recentrado del pan;
+  confirmación al salir. Ad que repone pistas = Fase 4.
