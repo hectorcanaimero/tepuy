@@ -204,27 +204,50 @@ class PuzzleBoard {
 
   bool get isComplete => pieces.every((p) => p.placed);
 
+  /// Reinicia la partida: piezas dispersas de nuevo, sin colocar, sin grupos
+  /// (para rejugar un puzzle ya completado).
+  void reset(List<Offset> positions) {
+    for (var i = 0; i < pieces.length; i++) {
+      pieces[i].pos = positions[i];
+      pieces[i].rotation = 0;
+      pieces[i].placed = false;
+      _parent[i] = i;
+    }
+  }
+
+  double get _boardWidth => pieceSize.width * cols;
+  double get _boardHeight => pieceSize.height * rows;
+
   // --- Persistencia (board_state) ---
+  // Posiciones NORMALIZADAS (0..1 respecto al tablero) → reanudar funciona aunque
+  // el área disponible cambie entre sesiones (otra pantalla, rotación, safe-area).
   String serialize() => jsonEncode({
     'cols': cols,
     'rows': rows,
-    'w': pieceSize.width,
-    'h': pieceSize.height,
     'parent': _parent,
     'pieces': [
       for (final p in pieces)
-        {'x': p.pos.dx, 'y': p.pos.dy, 'r': p.rotation, 'p': p.placed},
+        {
+          'x': p.pos.dx / _boardWidth,
+          'y': p.pos.dy / _boardHeight,
+          'r': p.rotation,
+          'p': p.placed,
+        },
     ],
   });
 
   /// Aplica un estado serializado (mismo cols×rows). La topología se regenera
-  /// determinísticamente, así que solo restauramos posiciones/rotación/estado.
+  /// determinísticamente; restauramos posiciones (des-normalizadas al tablero
+  /// actual), rotación y estado.
   void applyState(String json) {
     final data = jsonDecode(json) as Map<String, dynamic>;
     final list = data['pieces'] as List;
     for (var i = 0; i < pieces.length && i < list.length; i++) {
       final s = list[i] as Map<String, dynamic>;
-      pieces[i].pos = Offset((s['x'] as num).toDouble(), (s['y'] as num).toDouble());
+      pieces[i].pos = Offset(
+        (s['x'] as num).toDouble() * _boardWidth,
+        (s['y'] as num).toDouble() * _boardHeight,
+      );
       pieces[i].rotation = s['r'] as int;
       pieces[i].placed = s['p'] as bool;
     }

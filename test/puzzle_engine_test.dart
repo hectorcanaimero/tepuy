@@ -91,8 +91,59 @@ void main() {
 
     final b = board();
     b.applyState(snapshot);
-    expect(b.pieces[0].pos, const Offset(123, 45));
+    // Normalizado → puede haber error de float sub-píxel al des-normalizar.
+    expect(b.pieces[0].pos, offsetMoreOrLessEquals(const Offset(123, 45), epsilon: 0.01));
     expect(b.pieces[0].rotation, 2);
     expect(b.pieces[1].placed, isTrue);
+  });
+
+  test('reanudar con área distinta recoloca las colocadas en el nuevo home', () {
+    final a = PuzzleBoard.generate(
+      cols: 3,
+      rows: 3,
+      boardSize: const Size(300, 300),
+      snapThreshold: 10,
+    );
+    final p = a.pieces[4];
+    p.pos = p.home;
+    a.drop(p.index); // placed
+    final snap = a.serialize();
+
+    // Tablero de OTRO tamaño (pantalla distinta / rotación).
+    final b = PuzzleBoard.generate(
+      cols: 3,
+      rows: 3,
+      boardSize: const Size(600, 900),
+      snapThreshold: 10,
+    );
+    b.applyState(snap);
+    expect(b.pieces[4].placed, isTrue);
+    expect(b.pieces[4].pos, b.pieces[4].home); // home del NUEVO tablero
+  });
+
+  test('rotateGroup rota el grupo y da la vuelta completa', () {
+    final b = board();
+    final p = b.pieces.first;
+    b.rotateGroup(p.index);
+    expect(p.rotation, 1);
+    b.rotateGroup(p.index);
+    b.rotateGroup(p.index);
+    b.rotateGroup(p.index);
+    expect(p.rotation, 0);
+  });
+
+  test('reset re-dispersa, limpia colocadas y grupos', () {
+    final b = board(cols: 2, rows: 2);
+    for (final p in b.pieces) {
+      p.pos = p.home;
+      b.drop(p.index);
+    }
+    expect(b.isComplete, isTrue);
+
+    final scatter = [for (var i = 0; i < 4; i++) Offset(i * 10, i * 10)];
+    b.reset(scatter);
+    expect(b.isComplete, isFalse);
+    expect(b.pieces.every((p) => !p.placed), isTrue);
+    expect(b.pieces[0].pos, scatter[0]);
   });
 }

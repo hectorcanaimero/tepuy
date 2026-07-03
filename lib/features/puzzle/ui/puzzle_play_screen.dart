@@ -26,11 +26,31 @@ class PuzzlePlayScreen extends ConsumerStatefulWidget {
   ConsumerState<PuzzlePlayScreen> createState() => _PuzzlePlayScreenState();
 }
 
-class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen> {
+class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
+    with WidgetsBindingObserver {
   final _stopwatch = Stopwatch();
   PuzzleBoard? _board;
   PuzzleController? _controller;
   int? _dragging; // índice de la pieza que se arrastra
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Guardar progreso al pausar/salir (Alcance del spec).
+    if (state != AppLifecycleState.resumed) _controller?.persist();
+  }
+
+  void _applyInitialRotation(PuzzleBoard board) {
+    if (!kRotationEnabled) return;
+    for (final p in board.pieces) {
+      p.rotation = (p.col * 3 + p.row * 2) % 4;
+    }
+  }
 
   void _ensureBoard(Size area, PuzzleData data) {
     if (_board != null) return;
@@ -51,12 +71,15 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen> {
       snapThreshold: 0.35 * math.min(pw, ph),
       initialPositions: scatter,
     );
-    if (kRotationEnabled) {
-      for (final p in board.pieces) {
-        p.rotation = (p.col * 3 + p.row * 2) % 4;
+    _applyInitialRotation(board);
+    if (data.savedState != null) {
+      board.applyState(data.savedState!);
+      // Reingreso a un puzzle ya completado → rejugar desde cero.
+      if (board.isComplete) {
+        board.reset(scatter);
+        _applyInitialRotation(board);
       }
     }
-    if (data.savedState != null) board.applyState(data.savedState!);
     _board = board;
     _controller = PuzzleController(
       board: board,
@@ -78,6 +101,8 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller?.persist();
     _stopwatch.stop();
     super.dispose();
   }
@@ -158,7 +183,12 @@ class _Board extends StatelessWidget {
       child: Stack(
         children: [
           for (final piece in ordered)
-            Positioned(
+            AnimatedPositioned(
+              // Instantáneo mientras se arrastra; animado al soltar (snap).
+              duration: board.groupOf(piece.index) == dragging
+                  ? Duration.zero
+                  : const Duration(milliseconds: 130),
+              curve: Curves.easeOut,
               left: piece.pos.dx,
               top: piece.pos.dy,
               width: board.pieceSize.width,

@@ -40,7 +40,7 @@ class PuzzleController {
   /// Devuelve true si hubo snap/merge.
   Future<bool> drop(int index) async {
     final changed = board.drop(index);
-    await _persist();
+    await persist();
     if (board.isComplete && !completed) {
       completed = true;
       await _saveRecord();
@@ -48,7 +48,9 @@ class PuzzleController {
     return changed;
   }
 
-  Future<void> _persist() async {
+  /// Guarda el estado actual del tablero (para reanudar). Se llama en cada drop
+  /// y también al pausar/salir de la app.
+  Future<void> persist() async {
     final placed = board.pieces.where((p) => p.placed).length;
     await repo.save(
       UserPuzzlesCompanion.insert(
