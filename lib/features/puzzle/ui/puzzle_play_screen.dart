@@ -42,7 +42,9 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
   int? _dragging;
 
   final _undoStack = <String>[];
+  List<Offset> _scatter = const [];
   double _scale = 1;
+  Offset _pan = Offset.zero;
   int _hintsUsed = 0;
   int? _hintIndex; // pieza cuya posición se está resaltando
   bool _showPreview = false;
@@ -100,6 +102,7 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
         _applyInitialRotation(board);
       }
     }
+    _scatter = scatter;
     _board = board;
     _controller = PuzzleController(
       board: board,
@@ -146,6 +149,23 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
   void _zoom(double factor) =>
       setState(() => _scale = (_scale * factor).clamp(0.6, 2.5));
 
+  void _restart() {
+    _undoStack.clear();
+    setState(() {
+      _board!.reset(_scatter);
+      _applyInitialRotation(_board!);
+      _hintsUsed = 0;
+      _hintIndex = null;
+      _scale = 1;
+      _pan = Offset.zero;
+    });
+    _controller!.completed = false;
+    _stopwatch
+      ..reset()
+      ..start();
+    _controller!.persist();
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -173,40 +193,56 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
               final area = Size(constraints.maxWidth, constraints.maxHeight);
               _ensureBoard(area, data);
               final baseHue = _hueFor(data.place.category.index);
+              final boardView = Transform.translate(
+                offset: _pan,
+                child: Transform.scale(
+                  scale: _scale,
+                  child: _Board(
+                    board: _board!,
+                    baseHue: baseHue,
+                    dragging: _dragging,
+                    hintIndex: _hintIndex,
+                    onPanStart: (i) => setState(() => _dragging = i),
+                    onPanUpdate: (i, delta) =>
+                        setState(() => _board!.moveGroup(i, delta / _scale)),
+                    onPanEnd: _onDrop,
+                    onDoubleTap: kRotationEnabled
+                        ? (i) => setState(() => _board!.rotateGroup(i))
+                        : null,
+                  ),
+                ),
+              );
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  Transform.scale(
-                    scale: _scale,
-                    child: _Board(
-                      board: _board!,
-                      baseHue: baseHue,
-                      dragging: _dragging,
-                      hintIndex: _hintIndex,
-                      onPanStart: (i) => setState(() => _dragging = i),
-                      onPanUpdate: (i, delta) =>
-                          setState(() => _board!.moveGroup(i, delta / _scale)),
-                      onPanEnd: _onDrop,
-                      onDoubleTap: kRotationEnabled
-                          ? (i) => setState(() => _board!.rotateGroup(i))
-                          : null,
-                    ),
+                  // Fondo: arrastrar en espacio vacío hace pan del tablero.
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (d) => setState(() => _pan += d.delta),
                   ),
+                  boardView,
                   if (_showPreview)
                     Positioned.fill(
                       child: IgnorePointer(
-                        child: CustomPaint(
-                          painter: _PreviewPainter(_board!, baseHue),
+                        child: Transform.translate(
+                          offset: _pan,
+                          child: Transform.scale(
+                            scale: _scale,
+                            child: CustomPaint(
+                              painter: _PreviewPainter(_board!, baseHue),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   _TopBar(
                     title: data.place.name,
                     elapsed: formatDuration(_stopwatch.elapsedMilliseconds),
-                    progress: l10n.piezasColocadas(_placed, _board!.pieceCount),
                     onBack: () => context.pop(),
+                    onRestart: _restart,
                   ),
                   _ToolBar(
+                    progress: l10n.piezasColocadas(_placed, _board!.pieceCount),
                     remaining: l10n.restantes(_remaining),
                     hintsLeft: kFreeHintsPerGame - _hintsUsed,
                     previewOn: _showPreview,
@@ -234,18 +270,19 @@ class _TopBar extends StatelessWidget {
   const _TopBar({
     required this.title,
     required this.elapsed,
-    required this.progress,
     required this.onBack,
+    required this.onRestart,
   });
 
   final String title;
   final String elapsed;
-  final String progress;
   final VoidCallback onBack;
+  final VoidCallback onRestart;
 
   @override
   Widget build(BuildContext context) {
     final p = AppPalette.of(context);
+    final l10n = AppLocalizations.of(context);
     return Positioned(
       top: 0,
       left: 0,
@@ -259,7 +296,7 @@ class _TopBar extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                color: Colors.white,
+                color: p.textOnOverlay,
                 onPressed: onBack,
               ),
               Expanded(
@@ -267,16 +304,21 @@ class _TopBar extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: p.textOnOverlay,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               _Chip(icon: Icons.timer_outlined, label: elapsed),
-              const SizedBox(width: 8),
-              _Chip(icon: Icons.extension_outlined, label: progress),
-              const SizedBox(width: 8),
+              PopupMenuButton<int>(
+                icon: Icon(Icons.more_vert, color: p.textOnOverlay),
+                onSelected: (v) => v == 0 ? onRestart() : onBack(),
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: 0, child: Text(l10n.menuReiniciar)),
+                  PopupMenuItem(value: 1, child: Text(l10n.menuSalir)),
+                ],
+              ),
             ],
           ),
         ),
@@ -292,11 +334,13 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: Colors.white70),
+        Icon(icon, size: 16, color: p.textOnOverlayMuted),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(color: Colors.white)),
+        Text(label, style: TextStyle(color: p.textOnOverlay)),
       ],
     );
   }
@@ -304,6 +348,7 @@ class _Chip extends StatelessWidget {
 
 class _ToolBar extends StatelessWidget {
   const _ToolBar({
+    required this.progress,
     required this.remaining,
     required this.hintsLeft,
     required this.previewOn,
@@ -315,6 +360,7 @@ class _ToolBar extends StatelessWidget {
     required this.onUndo,
   });
 
+  final String progress;
   final String remaining;
   final int hintsLeft;
   final bool previewOn;
@@ -328,6 +374,7 @@ class _ToolBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = AppPalette.of(context);
+    final l10n = AppLocalizations.of(context);
     return Positioned(
       bottom: 0,
       left: 0,
@@ -340,39 +387,55 @@ class _ToolBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(remaining, style: const TextStyle(color: Colors.white)),
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _Chip(icon: Icons.extension_outlined, label: progress),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        remaining,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: p.textOnOverlay),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    tooltip: 'Pista',
+                    tooltip: l10n.toolPista,
                     icon: Badge(
                       isLabelVisible: hintsLeft > 0,
                       label: Text('$hintsLeft'),
                       child: const Icon(Icons.lightbulb_outline),
                     ),
-                    color: Colors.white,
+                    color: p.textOnOverlay,
                     onPressed: hintsLeft > 0 ? onHint : null,
                   ),
                   IconButton(
-                    tooltip: 'Vista previa',
+                    tooltip: l10n.toolPreview,
                     icon: const Icon(Icons.visibility_outlined),
-                    color: previewOn ? p.accentLight : Colors.white,
+                    color: previewOn ? p.accentLight : p.textOnOverlay,
                     onPressed: onPreview,
                   ),
                   IconButton(
                     icon: const Icon(Icons.zoom_out),
-                    color: Colors.white,
+                    color: p.textOnOverlay,
                     onPressed: onZoomOut,
                   ),
                   IconButton(
                     icon: const Icon(Icons.zoom_in),
-                    color: Colors.white,
+                    color: p.textOnOverlay,
                     onPressed: onZoomIn,
                   ),
                   IconButton(
-                    tooltip: 'Deshacer',
+                    tooltip: l10n.toolDeshacer,
                     icon: const Icon(Icons.undo),
-                    color: Colors.white,
+                    color: p.textOnOverlay,
                     onPressed: canUndo ? onUndo : null,
                   ),
                 ],

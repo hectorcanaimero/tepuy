@@ -7,6 +7,14 @@ void main() {
   testWidgets('HUD: cronómetro, contador, restantes y herramientas', (
     tester,
   ) async {
+    // Surface tamaño teléfono (la app está diseñada a ~390pt).
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     await pumpApp(tester);
 
     // Home → Difficulty Select.
@@ -40,5 +48,13 @@ void main() {
     await tester.tap(find.byIcon(Icons.zoom_in));
     await tester.pump();
     expect(find.byIcon(Icons.zoom_in), findsOneWidget); // sigue viva
+
+    // Menú ⋮ con Reiniciar / Salir.
+    expect(find.byIcon(Icons.more_vert), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Reiniciar'), findsOneWidget);
+    expect(find.text('Salir'), findsOneWidget);
   });
 }

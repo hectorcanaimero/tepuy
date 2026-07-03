@@ -178,6 +178,36 @@ abstract class AppLocalizations {
   /// **'{placed} / {total}'**
   String piezasColocadas(int placed, int total);
 
+  /// No description provided for @toolPista.
+  ///
+  /// In es, this message translates to:
+  /// **'Pista'**
+  String get toolPista;
+
+  /// No description provided for @toolPreview.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista previa'**
+  String get toolPreview;
+
+  /// No description provided for @toolDeshacer.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer'**
+  String get toolDeshacer;
+
+  /// No description provided for @menuReiniciar.
+  ///
+  /// In es, this message translates to:
+  /// **'Reiniciar'**
+  String get menuReiniciar;
+
+  /// No description provided for @menuSalir.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir'**
+  String get menuSalir;
+
   /// No description provided for @retoDiario.
   ///
   /// In es, this message translates to:

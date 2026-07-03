@@ -79,6 +79,11 @@ class AppPalette {
     overlay: Color(0x660A0A0F),
   );
 
+  /// Texto/íconos sobre el overlay oscuro del juego (el overlay es oscuro en
+  /// ambos temas, así que el blanco lee bien).
+  Color get textOnOverlay => const Color(0xFFFFFFFF);
+  Color get textOnOverlayMuted => const Color(0xB3FFFFFF);
+
   /// Paleta activa según el brillo del tema.
   static AppPalette of(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark ? dark : light;

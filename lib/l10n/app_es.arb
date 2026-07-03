@@ -30,6 +30,11 @@
       "total": { "type": "int" }
     }
   },
+  "toolPista": "Pista",
+  "toolPreview": "Vista previa",
+  "toolDeshacer": "Deshacer",
+  "menuReiniciar": "Reiniciar",
+  "menuSalir": "Salir",
   "retoDiario": "RETO DIARIO",
   "jugarAhora": "Jugar Ahora",
   "categorias": "Categorías",
