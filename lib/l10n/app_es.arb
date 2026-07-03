@@ -68,5 +68,19 @@
   "difFacil": "Fácil",
   "difMedio": "Media",
   "difDificil": "Difícil",
-  "difExperto": "Experto"
+  "difExperto": "Experto",
+  "miColeccion": "Mi Colección",
+  "totalPuzzles": "{count} puzzles",
+  "@totalPuzzles": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "filtroCompletados": "Completados",
+  "filtroEnProgreso": "En Progreso",
+  "filtroFavoritos": "Favoritos",
+  "statMejorTiempo": "Mejor tiempo",
+  "coleccionVacia": "Todavía no jugaste ningún rompecabezas",
+  "progresoPct": "{pct}% completado",
+  "@progresoPct": {
+    "placeholders": { "pct": { "type": "int" } }
+  }
 }

@@ -25,16 +25,27 @@ class PuzzleCard extends StatelessWidget {
     required this.place,
     required this.difficulty,
     this.onTap,
+    this.note,
+    this.isFavorite,
+    this.onFavorite,
   });
 
   final Place place;
   final Difficulty difficulty;
   final VoidCallback? onTap;
 
+  /// Línea extra bajo las piezas (ej. mejor tiempo o "% completado").
+  final String? note;
+
+  /// Corazón de favorito (solo si `onFavorite` != null).
+  final bool? isFavorite;
+  final VoidCallback? onFavorite;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final p = AppPalette.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -42,7 +53,27 @@ class PuzzleCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            PlaceImage(place: place, height: 104),
+            Stack(
+              children: [
+                PlaceImage(place: place, height: 104),
+                if (onFavorite != null)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: IconButton(
+                      iconSize: 20,
+                      visualDensity: VisualDensity.compact,
+                      icon: Icon(
+                        (isFavorite ?? false)
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: (isFavorite ?? false) ? p.accent : Colors.white,
+                      ),
+                      onPressed: onFavorite,
+                    ),
+                  ),
+              ],
+            ),
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -61,13 +92,23 @@ class PuzzleCard extends StatelessWidget {
                         child: Text(
                           l10n.piezas(difficulty.pieceCount),
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppPalette.of(context).textMuted,
+                            color: p.textMuted,
                           ),
                         ),
                       ),
                       _DifficultyBadge(difficulty: difficulty),
                     ],
                   ),
+                  if (note != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      note!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: p.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
