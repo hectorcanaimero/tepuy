@@ -381,6 +381,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Experto'**
   String get difExperto;
+
+  /// No description provided for @miColeccion.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi Colección'**
+  String get miColeccion;
+
+  /// No description provided for @totalPuzzles.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} puzzles'**
+  String totalPuzzles(int count);
+
+  /// No description provided for @filtroCompletados.
+  ///
+  /// In es, this message translates to:
+  /// **'Completados'**
+  String get filtroCompletados;
+
+  /// No description provided for @filtroEnProgreso.
+  ///
+  /// In es, this message translates to:
+  /// **'En Progreso'**
+  String get filtroEnProgreso;
+
+  /// No description provided for @filtroFavoritos.
+  ///
+  /// In es, this message translates to:
+  /// **'Favoritos'**
+  String get filtroFavoritos;
+
+  /// No description provided for @statMejorTiempo.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor tiempo'**
+  String get statMejorTiempo;
+
+  /// No description provided for @coleccionVacia.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no jugaste ningún rompecabezas'**
+  String get coleccionVacia;
+
+  /// No description provided for @progresoPct.
+  ///
+  /// In es, this message translates to:
+  /// **'{pct}% completado'**
+  String progresoPct(int pct);
 }
 
 class _AppLocalizationsDelegate

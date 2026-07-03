@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/collection/ui/collection_screen.dart';
 import '../../features/home/ui/home_screen.dart';
 import '../../features/journey/ui/difficulty_select_screen.dart';
 import '../../features/puzzle/ui/puzzle_play_screen.dart';
@@ -38,7 +39,7 @@ final appRouter = GoRouter(
           routes: [
             GoRoute(
               path: '/collection',
-              builder: (_, _) => const PlaceholderScreen(title: 'Colección'),
+              builder: (_, _) => const CollectionScreen(),
             ),
           ],
         ),

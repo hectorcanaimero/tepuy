@@ -159,4 +159,32 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get difExperto => 'Experto';
+
+  @override
+  String get miColeccion => 'Mi Colección';
+
+  @override
+  String totalPuzzles(int count) {
+    return '$count puzzles';
+  }
+
+  @override
+  String get filtroCompletados => 'Completados';
+
+  @override
+  String get filtroEnProgreso => 'En Progreso';
+
+  @override
+  String get filtroFavoritos => 'Favoritos';
+
+  @override
+  String get statMejorTiempo => 'Mejor tiempo';
+
+  @override
+  String get coleccionVacia => 'Todavía no jugaste ningún rompecabezas';
+
+  @override
+  String progresoPct(int pct) {
+    return '$pct% completado';
+  }
 }

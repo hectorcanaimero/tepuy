@@ -15,10 +15,10 @@ void main() {
       expect(find.text(label), findsWidgets);
     }
 
-    // Cambiar a Colección muestra su pantalla (placeholder) sin romper.
+    // Cambiar a Colección muestra su pantalla real sin romper.
     await tester.tap(find.text('Colección'));
     await tester.pumpAndSettle();
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    expect(find.text('Mi Colección'), findsOneWidget);
     // El tab bar sigue ahí.
     expect(find.byType(NavigationBar), findsOneWidget);
   });
