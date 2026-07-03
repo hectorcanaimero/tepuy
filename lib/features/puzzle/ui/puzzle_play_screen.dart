@@ -184,6 +184,9 @@ class _Board extends StatelessWidget {
         children: [
           for (final piece in ordered)
             AnimatedPositioned(
+              // Key por identidad de pieza: la lista se reordena por placed/dragging,
+              // sin key la animación implícita se aplicaría a la pieza equivocada.
+              key: ValueKey(piece.index),
               // Instantáneo mientras se arrastra; animado al soltar (snap).
               duration: board.groupOf(piece.index) == dragging
                   ? Duration.zero
