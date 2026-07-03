@@ -17,6 +17,24 @@
     }
   },
   "sinRecord": "Sin récord",
+  "restantes": "{count} restantes",
+  "@restantes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "piezasColocadas": "{placed} / {total}",
+  "@piezasColocadas": {
+    "placeholders": {
+      "placed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "toolPista": "Pista",
+  "toolPreview": "Vista previa",
+  "toolDeshacer": "Deshacer",
+  "menuReiniciar": "Reiniciar",
+  "menuSalir": "Salir",
   "retoDiario": "RETO DIARIO",
   "jugarAhora": "Jugar Ahora",
   "categorias": "Categorías",

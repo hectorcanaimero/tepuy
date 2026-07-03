@@ -27,9 +27,11 @@ void main() {
     expect(find.text('440 piezas'), findsOneWidget);
     expect(find.text('Sin récord'), findsWidgets);
 
-    // El CTA Jugar abre Puzzle Play (sale de Difficulty Select).
+    // El CTA Jugar abre Puzzle Play. Play tiene Timer.periodic → pump (no
+    // pumpAndSettle); pumpeamos hasta que la transición cubra Difficulty Select.
     await tester.tap(find.byType(FilledButton));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('Seleccioná la dificultad'), findsNothing);
   });
 

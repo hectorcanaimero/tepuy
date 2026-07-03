@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/db/providers.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/format.dart';
 import '../engine/piece_painter.dart';
 import '../engine/puzzle_engine.dart';
 import '../puzzle_controller.dart';
@@ -16,6 +18,10 @@ import '../puzzle_providers.dart';
 /// ponytail: rotación default OFF en MVP (sin Settings screen; jugabilidad).
 /// El motor la soporta y está testeada; el doble-tap ya rota si se habilita.
 const bool kRotationEnabled = false;
+
+/// Pistas gratis por partida (PRD §10). Agotadas → deshabilitada en MVP; el ad
+/// recompensado que repone es Fase 4.
+const int kFreeHintsPerGame = 1;
 
 class PuzzlePlayScreen extends ConsumerStatefulWidget {
   const PuzzlePlayScreen({super.key, required this.puzzleId});
@@ -29,9 +35,22 @@ class PuzzlePlayScreen extends ConsumerStatefulWidget {
 class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
     with WidgetsBindingObserver {
   final _stopwatch = Stopwatch();
+  Timer? _ticker; // refresca el cronómetro en pantalla
+  Timer? _hintTimer;
   PuzzleBoard? _board;
   PuzzleController? _controller;
-  int? _dragging; // índice de la pieza que se arrastra
+  int? _dragging;
+
+  final _undoStack = <String>[];
+  List<Offset> _scatter = const [];
+  double _scale = 1;
+  Offset _pan = Offset.zero;
+  int _hintsUsed = 0;
+  int? _hintIndex; // pieza cuya posición se está resaltando
+  bool _showPreview = false;
+
+  int get _placed => _board?.pieces.where((p) => p.placed).length ?? 0;
+  int get _remaining => (_board?.pieceCount ?? 0) - _placed;
 
   @override
   void initState() {
@@ -41,8 +60,12 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Guardar progreso al pausar/salir (Alcance del spec).
-    if (state != AppLifecycleState.resumed) _controller?.persist();
+    if (state != AppLifecycleState.resumed) {
+      _stopwatch.stop();
+      _controller?.persist();
+    } else if (_board != null && !(_controller?.completed ?? false)) {
+      _stopwatch.start();
+    }
   }
 
   void _applyInitialRotation(PuzzleBoard board) {
@@ -74,12 +97,12 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
     _applyInitialRotation(board);
     if (data.savedState != null) {
       board.applyState(data.savedState!);
-      // Reingreso a un puzzle ya completado → rejugar desde cero.
       if (board.isComplete) {
         board.reset(scatter);
         _applyInitialRotation(board);
       }
     }
+    _scatter = scatter;
     _board = board;
     _controller = PuzzleController(
       board: board,
@@ -88,9 +111,13 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
       elapsedMs: () => _stopwatch.elapsedMilliseconds,
     );
     _stopwatch.start();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   Future<void> _onDrop(int index) async {
+    _undoStack.add(_board!.serialize());
     await _controller!.drop(index);
     setState(() => _dragging = null);
     if (_controller!.completed && mounted) {
@@ -99,9 +126,51 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
     }
   }
 
+  void _undo() {
+    if (_undoStack.isEmpty) return;
+    setState(() => _board!.applyState(_undoStack.removeLast()));
+    _controller!.persist();
+  }
+
+  void _useHint() {
+    if (_hintsUsed >= kFreeHintsPerGame) return;
+    final unplaced = _board!.pieces.where((p) => !p.placed).toList();
+    if (unplaced.isEmpty) return;
+    setState(() {
+      _hintsUsed++;
+      _hintIndex = unplaced[_stopwatch.elapsedMilliseconds % unplaced.length].index;
+    });
+    _hintTimer?.cancel();
+    _hintTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _hintIndex = null);
+    });
+  }
+
+  void _zoom(double factor) =>
+      setState(() => _scale = (_scale * factor).clamp(0.6, 2.5));
+
+  void _restart() {
+    _undoStack.clear();
+    setState(() {
+      _board!.reset(_scatter);
+      _applyInitialRotation(_board!);
+      _hintsUsed = 0;
+      _hintIndex = null;
+      _scale = 1;
+      _pan = Offset.zero;
+    });
+    _controller!.completed = false;
+    _stopwatch
+      ..reset()
+      ..start();
+    _controller!.persist();
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _ticker?.cancel();
+    _hintTimer?.cancel();
     _controller?.persist();
     _stopwatch.stop();
     super.dispose();
@@ -112,7 +181,6 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
     final l10n = AppLocalizations.of(context);
     final dataAsync = ref.watch(puzzleDataProvider(widget.puzzleId));
     return Scaffold(
-      appBar: AppBar(),
       body: dataAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => Center(child: Text(l10n.errorCargarLugares)),
@@ -124,17 +192,69 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
             builder: (context, constraints) {
               final area = Size(constraints.maxWidth, constraints.maxHeight);
               _ensureBoard(area, data);
-              return _Board(
-                board: _board!,
-                baseHue: _hueFor(data.place.category.index),
-                dragging: _dragging,
-                onPanStart: (i) => setState(() => _dragging = i),
-                onPanUpdate: (i, delta) =>
-                    setState(() => _board!.moveGroup(i, delta)),
-                onPanEnd: _onDrop,
-                onDoubleTap: kRotationEnabled
-                    ? (i) => setState(() => _board!.rotateGroup(i))
-                    : null,
+              final baseHue = _hueFor(data.place.category.index);
+              final boardView = Transform.translate(
+                offset: _pan,
+                child: Transform.scale(
+                  scale: _scale,
+                  child: _Board(
+                    board: _board!,
+                    baseHue: baseHue,
+                    dragging: _dragging,
+                    hintIndex: _hintIndex,
+                    onPanStart: (i) => setState(() => _dragging = i),
+                    onPanUpdate: (i, delta) =>
+                        setState(() => _board!.moveGroup(i, delta / _scale)),
+                    onPanEnd: _onDrop,
+                    onDoubleTap: kRotationEnabled
+                        ? (i) => setState(() => _board!.rotateGroup(i))
+                        : null,
+                  ),
+                ),
+              );
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Fondo: arrastrar en espacio vacío hace pan del tablero.
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (d) => setState(() => _pan += d.delta),
+                  ),
+                  boardView,
+                  if (_showPreview)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Transform.translate(
+                          offset: _pan,
+                          child: Transform.scale(
+                            scale: _scale,
+                            child: CustomPaint(
+                              painter: _PreviewPainter(_board!, baseHue),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  _TopBar(
+                    title: data.place.name,
+                    elapsed: formatDuration(_stopwatch.elapsedMilliseconds),
+                    onBack: () => context.pop(),
+                    onRestart: _restart,
+                  ),
+                  _ToolBar(
+                    progress: l10n.piezasColocadas(_placed, _board!.pieceCount),
+                    remaining: l10n.restantes(_remaining),
+                    hintsLeft: kFreeHintsPerGame - _hintsUsed,
+                    previewOn: _showPreview,
+                    canUndo: _undoStack.isNotEmpty,
+                    onHint: _useHint,
+                    onPreview: () =>
+                        setState(() => _showPreview = !_showPreview),
+                    onZoomIn: () => _zoom(1.2),
+                    onZoomOut: () => _zoom(1 / 1.2),
+                    onUndo: _undo,
+                  ),
+                ],
               );
             },
           );
@@ -146,11 +266,194 @@ class _PuzzlePlayScreenState extends ConsumerState<PuzzlePlayScreen>
   double _hueFor(int categoryIndex) => (200 + categoryIndex * 30) % 360;
 }
 
+class _TopBar extends StatelessWidget {
+  const _TopBar({
+    required this.title,
+    required this.elapsed,
+    required this.onBack,
+    required this.onRestart,
+  });
+
+  final String title;
+  final String elapsed;
+  final VoidCallback onBack;
+  final VoidCallback onRestart;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+    final l10n = AppLocalizations.of(context);
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          color: p.overlay,
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back),
+                color: p.textOnOverlay,
+                onPressed: onBack,
+              ),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: p.textOnOverlay,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              _Chip(icon: Icons.timer_outlined, label: elapsed),
+              PopupMenuButton<int>(
+                icon: Icon(Icons.more_vert, color: p.textOnOverlay),
+                onSelected: (v) => v == 0 ? onRestart() : onBack(),
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: 0, child: Text(l10n.menuReiniciar)),
+                  PopupMenuItem(value: 1, child: Text(l10n.menuSalir)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: p.textOnOverlayMuted),
+        const SizedBox(width: 4),
+        Text(label, style: TextStyle(color: p.textOnOverlay)),
+      ],
+    );
+  }
+}
+
+class _ToolBar extends StatelessWidget {
+  const _ToolBar({
+    required this.progress,
+    required this.remaining,
+    required this.hintsLeft,
+    required this.previewOn,
+    required this.canUndo,
+    required this.onHint,
+    required this.onPreview,
+    required this.onZoomIn,
+    required this.onZoomOut,
+    required this.onUndo,
+  });
+
+  final String progress;
+  final String remaining;
+  final int hintsLeft;
+  final bool previewOn;
+  final bool canUndo;
+  final VoidCallback onHint;
+  final VoidCallback onPreview;
+  final VoidCallback onZoomIn;
+  final VoidCallback onZoomOut;
+  final VoidCallback onUndo;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+    final l10n = AppLocalizations.of(context);
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          color: p.overlay,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _Chip(icon: Icons.extension_outlined, label: progress),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        remaining,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: p.textOnOverlay),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: l10n.toolPista,
+                    icon: Badge(
+                      isLabelVisible: hintsLeft > 0,
+                      label: Text('$hintsLeft'),
+                      child: const Icon(Icons.lightbulb_outline),
+                    ),
+                    color: p.textOnOverlay,
+                    onPressed: hintsLeft > 0 ? onHint : null,
+                  ),
+                  IconButton(
+                    tooltip: l10n.toolPreview,
+                    icon: const Icon(Icons.visibility_outlined),
+                    color: previewOn ? p.accentLight : p.textOnOverlay,
+                    onPressed: onPreview,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.zoom_out),
+                    color: p.textOnOverlay,
+                    onPressed: onZoomOut,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.zoom_in),
+                    color: p.textOnOverlay,
+                    onPressed: onZoomIn,
+                  ),
+                  IconButton(
+                    tooltip: l10n.toolDeshacer,
+                    icon: const Icon(Icons.undo),
+                    color: p.textOnOverlay,
+                    onPressed: canUndo ? onUndo : null,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _Board extends StatelessWidget {
   const _Board({
     required this.board,
     required this.baseHue,
     required this.dragging,
+    required this.hintIndex,
     required this.onPanStart,
     required this.onPanUpdate,
     required this.onPanEnd,
@@ -160,6 +463,7 @@ class _Board extends StatelessWidget {
   final PuzzleBoard board;
   final double baseHue;
   final int? dragging;
+  final int? hintIndex;
   final ValueChanged<int> onPanStart;
   final void Function(int index, Offset delta) onPanUpdate;
   final ValueChanged<int> onPanEnd;
@@ -167,8 +471,7 @@ class _Board extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final border = AppPalette.of(context).border;
-    // z-order: colocadas al fondo, sin colocar encima, la arrastrada última.
+    final palette = AppPalette.of(context);
     final ordered = [...board.pieces]
       ..sort((a, b) {
         int rank(Piece p) => p.placed ? 0 : 1;
@@ -182,12 +485,25 @@ class _Board extends StatelessWidget {
     return ClipRect(
       child: Stack(
         children: [
+          // Marcador de pista: resalta el home de la pieza sugerida.
+          if (hintIndex != null)
+            Positioned(
+              left: board.pieces[hintIndex!].home.dx,
+              top: board.pieces[hintIndex!].home.dy,
+              width: board.pieceSize.width,
+              height: board.pieceSize.height,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: palette.accent, width: 3),
+                    color: palette.accentGlow,
+                  ),
+                ),
+              ),
+            ),
           for (final piece in ordered)
             AnimatedPositioned(
-              // Key por identidad de pieza: la lista se reordena por placed/dragging,
-              // sin key la animación implícita se aplicaría a la pieza equivocada.
               key: ValueKey(piece.index),
-              // Instantáneo mientras se arrastra; animado al soltar (snap).
               duration: board.groupOf(piece.index) == dragging
                   ? Duration.zero
                   : const Duration(milliseconds: 130),
@@ -214,7 +530,7 @@ class _Board extends StatelessWidget {
                         cols: board.cols,
                         rows: board.rows,
                         baseHue: baseHue,
-                        border: border,
+                        border: palette.border,
                       ),
                     ),
                   ),
@@ -259,6 +575,35 @@ class _PiecePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_PiecePainter old) =>
-      old.piece.rotation != piece.rotation;
+  bool shouldRepaint(_PiecePainter old) => old.piece.rotation != piece.rotation;
+}
+
+/// Vista previa: dibuja todas las piezas en su home, translúcidas.
+class _PreviewPainter extends CustomPainter {
+  _PreviewPainter(this.board, this.baseHue);
+  final PuzzleBoard board;
+  final double baseHue;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final p in board.pieces) {
+      canvas.save();
+      canvas.translate(p.home.dx, p.home.dy);
+      final path = piecePath(board.pieceSize, p.edges);
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = placeholderPieceColor(
+            p,
+            board.cols,
+            board.rows,
+            baseHue,
+          ).withValues(alpha: 0.45),
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PreviewPainter old) => false;
 }

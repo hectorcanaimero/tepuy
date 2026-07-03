@@ -47,6 +47,31 @@ class AppLocalizationsEs extends AppLocalizations {
   String get sinRecord => 'Sin récord';
 
   @override
+  String restantes(int count) {
+    return '$count restantes';
+  }
+
+  @override
+  String piezasColocadas(int placed, int total) {
+    return '$placed / $total';
+  }
+
+  @override
+  String get toolPista => 'Pista';
+
+  @override
+  String get toolPreview => 'Vista previa';
+
+  @override
+  String get toolDeshacer => 'Deshacer';
+
+  @override
+  String get menuReiniciar => 'Reiniciar';
+
+  @override
+  String get menuSalir => 'Salir';
+
+  @override
   String get retoDiario => 'RETO DIARIO';
 
   @override
