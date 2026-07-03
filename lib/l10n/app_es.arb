@@ -17,6 +17,19 @@
     }
   },
   "sinRecord": "Sin récord",
+  "restantes": "{count} restantes",
+  "@restantes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "piezasColocadas": "{placed} / {total}",
+  "@piezasColocadas": {
+    "placeholders": {
+      "placed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
   "retoDiario": "RETO DIARIO",
   "jugarAhora": "Jugar Ahora",
   "categorias": "Categorías",

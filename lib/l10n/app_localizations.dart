@@ -166,6 +166,18 @@ abstract class AppLocalizations {
   /// **'Sin récord'**
   String get sinRecord;
 
+  /// No description provided for @restantes.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} restantes'**
+  String restantes(int count);
+
+  /// No description provided for @piezasColocadas.
+  ///
+  /// In es, this message translates to:
+  /// **'{placed} / {total}'**
+  String piezasColocadas(int placed, int total);
+
   /// No description provided for @retoDiario.
   ///
   /// In es, this message translates to:
