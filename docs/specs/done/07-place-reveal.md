@@ -38,4 +38,23 @@ datos clave y curiosidad. Es lo que diferencia a Tepuy de un jigsaw genérico.
 - `lib/features/reveal/ui/place_reveal_screen.dart`
 
 ## Histórico
-<!-- Llenar al pasar a done/ -->
+
+### 2026-07-03 — Implementado (PR #8, aprobado a la primera)
+- `PlaceRevealScreen` (`lib/features/reveal/`): encabezado ROMPECABEZAS COMPLETADO +
+  lugar + ubicación + estrellas, resumen (tiempo/piezas/dificultad), Sobre este lugar,
+  Datos clave (grid de `facts`), ¿Sabías que?, y CTAs.
+- CTAs: Siguiente Rompecabezas (siguiente lugar del seed → Difficulty Select), Guardar
+  en Colección (`UserPuzzleRepository.setFavorite`), Compartir (placeholder).
+- `revealDataProvider` carga place + user_puzzle (tiempo/estrellas). Ruta conectada.
+- `flutter test` 23/23 (reveal_test verifica secciones + persistencia de favorito en DB).
+
+**Revisión — aprobado sin cambios; 2 notas menores:**
+- [bajo] `setFavorite` es UPDATE (no upsert): si no existiera la fila fallaría en
+  silencio, pero el flujo garantiza la fila (se llega a reveal sólo tras completar).
+  Aceptado como inalcanzable hoy.
+- [info] test reforzado tras la review: ahora valida `isFavorite` en la DB, no solo el
+  feedback visual.
+
+**Decisiones / desviaciones**
+- **Compartir**: placeholder (SnackBar). Share nativo real = `share_plus` en Fase 4.
+- **XP / animación de nivel** → Fase 2 (fuera de alcance).
